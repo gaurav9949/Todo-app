@@ -1,12 +1,22 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import { Todoprovider } from "./contexts";
+import { useState, useEffect } from "react";
+import { TodoProvider } from "./contexts";
 import { TodoForm, TodoItem } from "./components";
 
 function App() {
   const [todos, setTodos] = useState([]);
+
+  // Load todos from localStorage on mount
+  useEffect(() => {
+    const todos = JSON.parse(localStorage.getItem("todos"));
+    if (todos && todos.length > 0) {
+      setTodos(todos);
+    }
+  }, []);
+
+  // Save todos to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   const addTodo = (todo) => {
     setTodos((prev) => [{ id: Date.now(), ...todo }, ...prev]);
@@ -30,19 +40,10 @@ function App() {
           : prevTodo
       )
     );
-    useEffect(() => {
-      const todos = JSON.parse(localStorage.getItem("todos"));
-      if (todos && todos.length > 0) {
-        setTodos(todos);
-      }
-    }, []);
-    useEffect(() => {
-      localStorage.setItem("todos", JSON.stringify(todos));
-    }, [todos]);
   };
 
   return (
-    <Todoprovider
+    <TodoProvider
       value={{ todos, addTodo, updateTodo, toggleTodo, deleteTodo }}
     >
       <div className="bg-[#172842] min-h-screen py-8">
@@ -64,7 +65,7 @@ function App() {
           </div>
         </div>
       </div>
-    </Todoprovider>
+    </TodoProvider>
   );
 }
 
